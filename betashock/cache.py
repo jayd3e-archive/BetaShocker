@@ -1,9 +1,41 @@
+import pylibmc
 import urllib
 import re
 import time
 import lxml.html
 from datetime import date
-from tornado import httpclient 
+from tornado import httpclient
+from dogpile import Dogpile, NeedRegenerationException
+
+mc_pool = pylibmc.ThreadMappedPool(pylibmc.Client(["127.0.0.1"]))
+
+# Taken from the dogpile docs
+def cached(key, expiration_time):
+    """A decorator that will cache the return value of a function
+    in memcached given a key."""
+
+    def get_value():
+         with mc_pool.reserve() as mc:
+            value = mc.get(key)
+            if value is None:
+                raise NeedRegenerationException()
+            return value
+
+    dogpile = Dogpile(expiration_time, init=True)
+
+    def decorate(fn):
+        def gen_cached():
+            value = fn()
+            with mc_pool.reserve() as mc:
+                mc.set(key, value)
+            return value
+
+        def invoke():
+            with dogpile.acquire(gen_cached, get_value) as value:
+                return value
+        return invoke
+
+    return decorate
 
 def parse_post(body):
     match = re.match("\s+.+: (.+)", body) 
@@ -31,7 +63,9 @@ def get_page(http_client, url, allowed_attempts=0, **kwargs):
             else:
                 continue
 
-def main(num_of_pages):
+@cached("members", 3600)
+def get_member_stats():
+    num_of_pages = 3
     posts = []
     members = []
     member_stats = {}
@@ -84,7 +118,7 @@ def main(num_of_pages):
                     total_posts = total_posts.replace(",", "")
                 j += 1
             i += 1
-            print("Status(" + member + "): " + str(i) + "/" + str(num_of_members - 1))
+            print("Building Cache: " + str(i) + "/" + str(num_of_members - 1) + " members")
 
             member_stats[member] = {"join_date" : date(year, month, day), "total_posts" : int(total_posts)}
         
@@ -92,19 +126,3 @@ def main(num_of_pages):
             # lxml throws a KeyError if it can't find an element with the specified id, we use this
             # to determine if we are on a profile page, or if the user doesn't exist
             continue 
-    
-    members_total_posts = 0
-    members_total_days = 0
-    for name, stats in member_stats.items():
-        members_total_posts += stats["total_posts"]
-        td = date.today() - stats["join_date"]
-        members_total_days += td.days
-
-    average_posts = members_total_posts / num_of_members
-    average_days = members_total_days /num_of_members
-
-    print("Average Posts: " + str(average_posts))
-    print("Average Days: " + str(average_days))
-        
-if __name__ == "__main__":
-    main(3)

@@ -1,0 +1,17 @@
+body {
+	background-image: url("../img/black_waterpaper_background_pattern.png");
+}
+
+.centered {
+	width: 400px;
+	margin: 0 auto;	
+}
+
+.header {
+	text-align: center;
+	height: 200px;
+}
+
+.body {
+	width: 960px;
+}

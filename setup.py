@@ -12,11 +12,12 @@ entry_points = """
       """
 
 requires = ['pyramid',
-            'pyramid_tm',
             'pyramid_debugtoolbar',
-            'sqlalchemy',
             'mako',
-            'deform']
+            'dogpile',
+            'pylibmc',
+            'lxml',
+	    'tornado']
 
 setup(name='BetaShock',
       version='0.1dev',

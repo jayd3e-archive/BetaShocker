@@ -1,0 +1,13 @@
+h1, h2 {
+	font-family: Helvetica, Arial, Verdana, Tahoma;
+}
+
+.header h1 {
+	font-size: 30px;
+	color: #FFF;
+}
+
+.body h2 {
+	font-size: 18px;
+	color: #FFF;
+}
