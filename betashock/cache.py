@@ -3,7 +3,6 @@ import urllib
 import re
 import time
 import lxml.html
-from datetime import date
 from tornado import httpclient
 from dogpile import Dogpile, NeedRegenerationException
 
@@ -59,8 +58,10 @@ def get_page(http_client, url, allowed_attempts=0, **kwargs):
         except httpclient.HTTPError, e:
             attempts += 1
             if attempts == allowed_attempts:
-                 print "Error:", e
+                print "Error:", e
+                break
             else:
+                time.sleep(2*attempts)
                 continue
 
 @cached("members", 3600)
@@ -75,7 +76,7 @@ def get_member_stats():
                             "http://www.playdota.com/forums/549614-page" +\
                             str(current_page_num) +\
                             "/daily-draw-winners/",
-                            allowed_attempts=3)
+                            allowed_attempts=5)
         # We need to make sure that the body is unicode and the correct encoding
         # going in, or lxml will guess incorrectly for some of the names
         body = response.body.decode("windows-1250")
@@ -94,7 +95,7 @@ def get_member_stats():
         member = member.replace(" ", "+")
         response = get_page(http_client,
                             "http://www.playdota.com/forums/members/" + member + "/",
-                            allowed_attempts=3)
+                            allowed_attempts=5)
                    
         body = response.body.decode("windows-1250")
         html = lxml.html.fromstring(body)
@@ -125,4 +126,6 @@ def get_member_stats():
         except KeyError, e:
             # lxml throws a KeyError if it can't find an element with the specified id, we use this
             # to determine if we are on a profile page, or if the user doesn't exist
-            continue 
+            continue
+    
+    return member_stats

@@ -9,9 +9,21 @@ body {
 
 .header {
 	text-align: center;
-	height: 200px;
+	height: 375px;
+}
+
+.header h1 {
+	margin-top: 10px;
+	margin-bottom: 20px;
 }
 
 .body {
 	width: 960px;
+}
+
+.logo {
+	width: 300px;
+	height: 300px;
+	margin: 0 auto;
+	background-image: url("../img/shocker.png");
 }
