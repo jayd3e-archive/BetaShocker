@@ -3,6 +3,7 @@ import urllib
 import re
 import time
 import lxml.html
+from datetime import date
 from tornado import httpclient
 from dogpile import Dogpile, NeedRegenerationException
 
@@ -64,7 +65,7 @@ def get_page(http_client, url, allowed_attempts=0, **kwargs):
                 time.sleep(2*attempts)
                 continue
 
-@cached("members", 3600)
+@cached("members", 86400)
 def get_member_stats():
     num_of_pages = 3
     posts = []
@@ -91,7 +92,12 @@ def get_member_stats():
     for member in members:
         j = 0
         # playdota doesn't like spaces in the names
-        member = urllib.quote(member.encode("windows-1250"))
+        try:
+            member = urllib.quote(member.encode("windows-1250"))
+        except UnicodeEncodeError, e:
+            # if we can't forum the url, just skip that user
+            i += 1
+            continue
         member = member.replace(" ", "+")
         response = get_page(http_client,
                             "http://www.playdota.com/forums/members/" + member + "/",

@@ -27,3 +27,11 @@ body {
 	margin: 0 auto;
 	background-image: url("../img/shocker.png");
 }
+
+.stats_table {
+	text-align: left;
+}
+
+.stats_table td, .stats_info th {
+	padding-bottom: 5px;
+}

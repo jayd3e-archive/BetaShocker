@@ -1,4 +1,4 @@
-h1, h2 {
+h1, h2, th, td {
 	font-family: Helvetica, Arial, Verdana, Tahoma;
 }
 
@@ -10,4 +10,14 @@ h1, h2 {
 .body h2 {
 	font-size: 18px;
 	color: #FFF;
+	padding-bottom: 10px;
+}
+
+.stats_table {
+	color: #FFF;
+	font-size: 12px;
+}
+
+.stats_table th {
+	padding-right: 20px;
 }

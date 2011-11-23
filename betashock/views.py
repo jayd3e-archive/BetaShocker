@@ -17,14 +17,33 @@ def index(request):
 
     members_total_posts = 0
     members_total_days = 0
+    members_old_300 = 0
+    members_old_20 = 0
+    members_random = 0
+
     for name, stats in member_stats.items():
+        # Get info for averages
         members_total_posts += stats["total_posts"]
         td = date.today() - stats["join_date"]
         members_total_days += td.days
 
+        # Get info for percentages
+        if stats['total_posts'] > 300:
+            members_old_300 += 1
+        elif stats['total_posts'] < 300 and stats['total_posts'] > 20:
+            members_old_20 += 1
+        else:
+            members_random += 1
+
     avg_total_posts = members_total_posts / num_of_members
     avg_days = members_total_days / num_of_members
+    perc_old_300 = round(float(members_old_300) / num_of_members * 100, 2)
+    perc_old_20 = round(float(members_old_20) / num_of_members * 100, 2)
+    perc_random = round(float(members_random) / num_of_members * 100, 2)
 
     return {'title':title,
     		'avg_total_posts':avg_total_posts,
-    		'avg_days':avg_days}
+    		'avg_days':avg_days,
+            'perc_old_300':perc_old_300,
+            'perc_old_20':perc_old_20,
+            'perc_random':perc_random}
