@@ -17,7 +17,7 @@ requires = ['pyramid',
             'dogpile',
             'pylibmc',
             'lxml',
-	    'tornado']
+	        'tornado']
 
 setup(name='BetaShock',
       version='0.1dev',
