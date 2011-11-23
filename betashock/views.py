@@ -28,9 +28,9 @@ def index(request):
         members_total_days += td.days
 
         # Get info for percentages
-        if stats['total_posts'] > 300:
+        if stats['total_posts'] > 300 and members_total_days >= 365:
             members_old_300 += 1
-        elif stats['total_posts'] < 300 and stats['total_posts'] > 20:
+        elif (stats['total_posts'] < 300 and stats['total_posts'] > 20) and members_total_days >= 365:
             members_old_20 += 1
         else:
             members_random += 1
