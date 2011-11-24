@@ -1,6 +1,6 @@
 from pyramid.view import view_config
 from pyramid.exceptions import NotFound
-from betashock.cache import get_member_stats
+from betashock.retrieve import get_member_stats
 from datetime import date
 
 @view_config(context=NotFound,
