@@ -1,6 +1,7 @@
 from pyramid.view import view_config
 from pyramid.exceptions import NotFound
-from betashock.retrieve import get_member_stats
+from betashock.retrieve import get_winner_stats
+from betashock.retrieve import get_entrant_stats
 from datetime import date
 
 @view_config(context=NotFound,
@@ -12,7 +13,8 @@ def notFound(request):
 @view_config(route_name='index', renderer='index.mako')
 def index(request):
     title = "BetaShocker"
-    member_stats = get_member_stats()
+    #member_stats = get_winner_stats()
+    entrant_stats = get_entrant_stats()
     num_of_members = len(member_stats)
 
     members_total_posts = 0
