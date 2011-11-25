@@ -3,6 +3,7 @@ import time
 import lxml.html
 from datetime import date
 from betashock.exc import ParseError
+from betashock.cache import set_member_stats
 
 MONTHS = {'Jan' : 1,
 		  'Feb' : 2,
@@ -74,14 +75,23 @@ def parse_entrant_data(post):
 
 	return {"join_date" : date(year, month, day), "total_posts" : int(total_posts)}
 
-def parse_entrantlist_thread(page, member_stats):
+def parse_entrantlist_thread(page):
 	html = lxml.html.fromstring(page)
 	posts = html.get_element_by_id("posts")
 
+	entrants = []
 	for post in posts.xpath("./div[@align='center']"):
-		name = parse_entrant_name(post)
-		member_stats[name] = parse_entrant_data(post)
-	return member_stats
+		member_name = parse_entrant_name(post)
+		# Memcached doesn't like spaces in keys and unicode
+		member_name = member_name.replace(" ", "_")
+		if isinstance(member_name, unicode):
+			member_name = member_name.encode("windows-1250", "replace")
+		member_stat = parse_entrant_data(post)
+		if not member_name in entrants:
+			entrants.append(member_name)
+			set_member_stats(member_name, member_stat)
+   
+	return entrants
 
 def parse_profile_page(page):
 	try:

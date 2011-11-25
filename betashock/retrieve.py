@@ -1,6 +1,7 @@
 import urllib
 import time
 from betashock.cache import cached
+from betashock.cache import mc_pool
 from betashock.parse import parse_winnerlist_thread
 from betashock.parse import parse_entrantlist_thread
 from betashock.parse import parse_profile_page
@@ -37,9 +38,7 @@ def get_last_page_num(http_client, url):
 @cached("winners", 86400)
 def get_winner_stats():
     http_client = httpclient.HTTPClient()
-    #TODO: Check that this returns 3
-    import pdb;pdb.set_trace()
-    num_of_pages = get_last_page_num(http_client, "http://www.playdota.com/forums/549614-page1/daily-draw-winners/")
+    num_of_pages = 3
 
     posts = []
     members = []
@@ -75,21 +74,21 @@ def get_winner_stats():
                             "http://www.playdota.com/forums/members/" + member + "/",
                             allowed_attempts=5)
         
-        body = response.body.decode("windows-1250")
+        body = response.body
         try:
             member_stats[member] = parse_profile_page(body)
         except ParseError, e:
             print(e.message)
             continue
-    
-    return member_stats
+
+    return set_member_stats(member_stats)
 
 @cached("entrants", 86400)
 def get_entrant_stats():
     http_client = httpclient.HTTPClient()
     num_of_pages = get_last_page_num(http_client, "http://www.playdota.com/forums/549077-page1/playdota-beta-key-draw/")
 
-    member_stats = {}
+    entrants = []
     for current_page_num in range(1, num_of_pages + 1):
         print("On Page: " + str(current_page_num) + "/" + str(num_of_pages))
         response = get_page(http_client, 
@@ -98,7 +97,7 @@ def get_entrant_stats():
                         "/playdota-beta-key-draw/",
                         allowed_attempts=5)
         
-        body = response.body.decode("windows-1250", 'ignore')
-        member_stats = parse_entrantlist_thread(body, member_stats)
-    import pdb;pdb.set_trace()
-    return member_stats
+        body = response.body
+        added_entrants = parse_entrantlist_thread(body)
+        entrants.extend(added_entrants)
+    return entrants

@@ -31,3 +31,11 @@ def cached(key, expiration_time):
         return invoke
 
     return decorate
+
+def set_member_stats(member_name, member_stat):
+    @cached(member_name, 86400)
+    def set_member_stat():
+        return member_stat
+    if set_member_stat():
+        return True
+    return False

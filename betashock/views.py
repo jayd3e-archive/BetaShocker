@@ -13,8 +13,8 @@ def notFound(request):
 @view_config(route_name='index', renderer='index.mako')
 def index(request):
     title = "BetaShocker"
-    #member_stats = get_winner_stats()
     entrant_stats = get_entrant_stats()
+    #member_stats = get_winner_stats()
     num_of_members = len(member_stats)
 
     members_total_posts = 0
