@@ -20,7 +20,7 @@
 			<td>${winner_perc_old_20}%</td>
 		</tr>
 		<tr>
-			<th>% of <font color="red">RANDOM</font> people</th>
+			<th>% of <font color="red">NEW</font> people w/ < <font color="red">20</font> posts</th>
 			<td>${winner_perc_random}%</td>
 		</tr>
 	</table>
@@ -43,8 +43,9 @@
 			<td>${entrant_perc_old_20}%</td>
 		</tr>
 		<tr>
-			<th>% of <font color="red">RANDOM</font> people</th>
+			<th>% of <font color="red">RANDOM</font> people w/ < <font color="red">20</font> posts</th>
 			<td>${entrant_perc_random}%</td>
 		</tr>
 	</table>
+	<div class="note"><font color="red">*Note:</font> An old member is defined as over a year old from join date, and a new member is defined as less than a year old.</div>
 </%def>
