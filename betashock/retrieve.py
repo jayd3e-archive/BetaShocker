@@ -2,9 +2,9 @@ import urllib
 import time
 from betashock.cache import cached
 from betashock.cache import mc_pool
+from betashock.cache import get_member_stats
 from betashock.parse import parse_winnerlist_thread
 from betashock.parse import parse_entrantlist_thread
-from betashock.parse import parse_profile_page
 from betashock.parse import parse_last_page_num
 from betashock.exc import ParseError
 from tornado import httpclient
@@ -36,61 +36,41 @@ def get_last_page_num(http_client, url):
     return parse_last_page_num(body)
 
 @cached("winners", 86400)
-def get_winner_stats():
+def get_winner_list():
     http_client = httpclient.HTTPClient()
     num_of_pages = 3
-
-    posts = []
-    members = []
-    member_stats = {}
+    winners = []
 
     for current_page_num in range(1, num_of_pages + 1):
+        print("(Winners)On Page: " + str(current_page_num) + "/" + str(num_of_pages))
         response = get_page(http_client, 
                             "http://www.playdota.com/forums/549614-page" +\
                             str(current_page_num) +\
                             "/daily-draw-winners/",
                             allowed_attempts=5)
-        # We need to make sure that the body is unicode and the correct encoding
-        # going in, or lxml will guess incorrectly for some of the names
-        body = response.body.decode("windows-1250")
-        added_members = parse_winnerlist_thread(body)
-        members.extend(added_members)
-
-    i = 0
-    num_of_members = len(members)
-
-    for member in members:
-        i += 1
-        print("Building Cache: " + str(i) + "/" + str(num_of_members) + " members")
-
-        # playdota doesn't like spaces in the names
-        try:
-            member = urllib.quote(member.encode("windows-1250"))
-        except UnicodeEncodeError, e:
-            # if we can't form the url, just skip that user
-            continue
-        member = member.replace(" ", "+")
-        response = get_page(http_client,
-                            "http://www.playdota.com/forums/members/" + member + "/",
-                            allowed_attempts=5)
-        
         body = response.body
-        try:
-            member_stats[member] = parse_profile_page(body)
-        except ParseError, e:
-            print(e.message)
-            continue
+        added_winners = parse_winnerlist_thread(body)
+        winners.extend(added_winners)
 
-    return set_member_stats(member_stats)
+    return winners
+
+def get_winner_stats():
+    winner_stats = {}
+    winners = get_winner_list()
+
+    for winner in winners:
+        winner_stats[winner] = get_member_stats(winner)
+    
+    return winner_stats
 
 @cached("entrants", 86400)
-def get_entrant_stats():
+def get_entrant_list():
     http_client = httpclient.HTTPClient()
     num_of_pages = get_last_page_num(http_client, "http://www.playdota.com/forums/549077-page1/playdota-beta-key-draw/")
 
     entrants = []
     for current_page_num in range(1, num_of_pages + 1):
-        print("On Page: " + str(current_page_num) + "/" + str(num_of_pages))
+        print("(Entrants)On Page: " + str(current_page_num) + "/" + str(num_of_pages))
         response = get_page(http_client, 
                         "http://www.playdota.com/forums/549077-page" +\
                         str(current_page_num) +\
@@ -101,3 +81,12 @@ def get_entrant_stats():
         added_entrants = parse_entrantlist_thread(body)
         entrants.extend(added_entrants)
     return entrants
+
+def get_entrant_stats():
+    entrant_stats = {}
+    entrants = get_entrant_list()
+
+    for entrant in entrants:
+        entrant_stats[entrant] = get_member_stats(entrant)
+    
+    return entrant_stats

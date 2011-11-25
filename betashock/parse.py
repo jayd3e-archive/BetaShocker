@@ -30,6 +30,13 @@ def parse_winnerlist_thread(body):
 		 	last_member[1] = last_member[1].replace("\r", "")
 		 	added_members.extend(last_member)
 			members.extend(added_members)
+	
+	i = 0
+	for member in members:
+		if isinstance(member, unicode):
+			members[i] = member.encode("windows-1250", "replace")
+		i += 1
+
 	return members
 
 def parse_entrant_name(post):
@@ -92,37 +99,6 @@ def parse_entrantlist_thread(page):
 			set_member_stats(member_name, member_stat)
    
 	return entrants
-
-def parse_profile_page(page):
-	try:
-		html = lxml.html.fromstring(page)
-		stats_mini = html.get_element_by_id("stats_mini")
-		profile = stats_mini.xpath("//dl[@class='smallfont list_no_decoration profilefield_list']")
-		stat_names = profile[0].xpath(".//dt")
-		stats = profile[0].xpath(".//dd")
-
-		i = 0
-		month, day, year = 0, 0, 0
-		total_posts = 0
-		for name in stat_names:
-		    name = name.text_content()
-		    if name == "Join Date":
-		        join_date_str = stats[i].text_content()
-		        join_date_list = join_date_str.split("-")
-		        month = int(join_date_list[0])
-		        day = int(join_date_list[1])
-		        year = int(join_date_list[2])
-		    elif name == "Total Posts":
-		        total_posts = stats[i].text_content()
-		        # Remove all commas so it can be parsed by int()
-		        total_posts = total_posts.replace(",", "")
-		    i += 1
-
-		return {"join_date" : date(year, month, day), "total_posts" : int(total_posts)}
-	except KeyError, e:
-		# lxml throws a KeyError if it can't find an element with the specified id, we use this
-		# to determine if we are on a profile page, or if the user doesn't exist
-		raise ParseError("The page passed in is not a profile page.")
 
 def parse_last_page_num(page):
 	html = lxml.html.fromstring(page)

@@ -33,9 +33,14 @@ def cached(key, expiration_time):
     return decorate
 
 def set_member_stats(member_name, member_stat):
-    @cached(member_name, 86400)
+    @cached(member_name, -)
     def set_member_stat():
         return member_stat
     if set_member_stat():
         return True
     return False
+
+def get_member_stats(member_name):
+    with mc_pool.reserve() as mc:
+        member_stat = mc.get(member_name)
+    return member_stat
