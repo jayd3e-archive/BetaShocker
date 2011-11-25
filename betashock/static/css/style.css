@@ -30,6 +30,7 @@ body {
 
 .stats_table {
 	text-align: left;
+	margin-bottom: 25px;
 }
 
 .stats_table td, .stats_info th {
