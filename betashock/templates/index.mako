@@ -43,7 +43,7 @@
 			<td>${entrant_perc_old_20}%</td>
 		</tr>
 		<tr>
-			<th>% of <font color="red">RANDOM</font> people w/ < <font color="red">20</font> posts</th>
+			<th>% of <font color="red">NEW</font> people w/ < <font color="red">20</font> posts</th>
 			<td>${entrant_perc_random}%</td>
 		</tr>
 	</table>
